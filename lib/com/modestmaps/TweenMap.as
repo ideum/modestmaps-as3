@@ -124,7 +124,7 @@ package com.modestmaps
 			m.scale(sc, sc);
 			m.translate(targetPoint.x, targetPoint.y);
 			
-			tweenToMatrix(m, duration);
+			//tweenToMatrix(m, duration);
         }
 
 		/** zoom in or out by zoomDelta, keeping the requested point in the same place */        

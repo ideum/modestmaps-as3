@@ -60,29 +60,51 @@ package com.modestmaps.extras
             var extent:MapExtent = new MapExtent();
             var latlngs:Array = [];
 
+			var lat1:Number;
+			var lon1:Number;
+			var lat2:Number;
+			var lon2:Number;
+			
+			var d:Number;
+			var bearing:Number;
+			
+			var f:Number;
+			var A:Number;
+			var B:Number;
+			var x:Number;
+			var y:Number;
+			var z:Number;
+			
+			var latN:Number;
+			var lonN:Number;
+			
+			var n:int;
+			var numSegments:int;
+			var l:Location;
+			
             with (Math) {
                 
-    			var lat1:Number = start.lat * PI / 180.0;
-    			var lon1:Number = start.lon * PI / 180.0;
-    			var lat2:Number = end.lat * PI / 180.0;
-    			var lon2:Number = end.lon * PI / 180.0;
+    			lat1 = start.lat * PI / 180.0;
+    			lon1 = start.lon * PI / 180.0;
+    			lat2 = end.lat * PI / 180.0;
+    			lon2 = end.lon * PI / 180.0;
     			
-    			var d:Number = 2*asin(sqrt( pow((sin((lat1-lat2)/2)),2) + cos(lat1)*cos(lat2)*pow((sin((lon1-lon2)/2)),2)));
-    			var bearing:Number = atan2(sin(lon1-lon2)*cos(lat2), cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2))  / -(PI/180);
+    			d = 2*asin(sqrt( pow((sin((lat1-lat2)/2)),2) + cos(lat1)*cos(lat2)*pow((sin((lon1-lon2)/2)),2)));
+    			bearing = atan2(sin(lon1-lon2)*cos(lat2), cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2))  / -(PI/180);
     			bearing = bearing < 0 ? 360 + bearing : bearing;
     
-                var numSegments:int = int(40 + (400 * Distance.approxDistance(start,end) / (Math.PI * 2 * 6378000)));
-    			for (var n:int = 0 ; n < numSegments; n++ ) {
-    				var f:Number = (1/(numSegments-1)) * n;
-    				var A:Number = sin((1-f)*d)/sin(d);
-    				var B:Number = sin(f*d)/sin(d);
-    				var x:Number = A*cos(lat1)*cos(lon1) +  B*cos(lat2)*cos(lon2);
-    				var y:Number = A*cos(lat1)*sin(lon1) +  B*cos(lat2)*sin(lon2);
-    				var z:Number = A*sin(lat1)           +  B*sin(lat2);
+                numSegments = int(40 + (400 * Distance.approxDistance(start,end) / (Math.PI * 2 * 6378000)));
+    			for (n = 0 ; n < numSegments; n++ ) {
+    				f = (1/(numSegments-1)) * n;
+    				a = sin((1-f)*d)/sin(d);
+    				b = sin(f*d)/sin(d);
+    				x = A*cos(lat1)*cos(lon1) +  B*cos(lat2)*cos(lon2);
+    				y = A*cos(lat1)*sin(lon1) +  B*cos(lat2)*sin(lon2);
+    				z = A*sin(lat1)           +  B*sin(lat2);
     
-    				var latN:Number = atan2(z,sqrt(pow(x,2)+pow(y,2)));
-    				var lonN:Number = atan2(y,x);
-    				var l:Location = new Location(latN/(PI/180), lonN/(PI/180));
+    				latN = atan2(z,sqrt(pow(x,2)+pow(y,2)));
+    				lonN = atan2(y,x);
+    				l = new Location(latN/(PI/180), lonN/(PI/180));
     				latlngs.push(l);
     				extent.enclose(l);
                 }

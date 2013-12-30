@@ -1,5 +1,7 @@
 package com.modestmaps.core 
 {
+	import com.gestureworks.cml.elements.TouchContainer;
+	import com.gestureworks.cml.events.StateEvent;
 	import com.modestmaps.core.painter.ITilePainter;
 	import com.modestmaps.core.painter.ITilePainterOverride;
 	import com.modestmaps.core.painter.TilePainter;
@@ -16,6 +18,9 @@ package com.modestmaps.core
 	import flash.geom.Rectangle;
 	import flash.text.TextField;
 	import flash.utils.getTimer;
+	
+	import com.gestureworks.events.GWTouchEvent;
+	import com.gestureworks.events.GWGestureEvent;
 
 	public class TileGrid extends Sprite
 	{
@@ -213,7 +218,25 @@ package com.modestmaps.core
 		{
 			if (draggable) {
 				addEventListener(MouseEvent.MOUSE_DOWN, mousePressed, true);
+				if (this.parent && !(this.parent is TouchContainer)) {
+					if (this.parent.parent  && !(this.parent.parent is TouchContainer)) {
+						if (this.parent.parent.parent && this.parent.parent.parent is TouchContainer) {
+							this.parent.parent.parent.addEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+							//this.parent.parent.parent.addEventListener(GWGestureEvent.DRAG, mousePressed);
+							//this.parent.parent.parent.addEventListener(GWGestureEvent.SCALE, onTouchScale);
+						}
+					} else if (this.parent.parent && this.parent.parent is TouchContainer) {
+						this.parent.parent.addEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+						//this.parent.parent.addEventListener(GWGestureEvent.DRAG, mousePressed);
+						//this.parent.parent.addEventListener(GWGestureEvent.SCALE, onTouchScale);
+					}
+				} else if (this.parent && this.parent is TouchContainer) {
+					this.parent.addEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+					//this.parent.addEventListener(GWGestureEvent.DRAG, mousePressed);
+					//this.parent.addEventListener(GWGestureEvent.SCALE, onTouchScale);
+				}
 			}
+			
 			addEventListener(Event.RENDER, onRender);
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
@@ -223,11 +246,85 @@ package com.modestmaps.core
 			onRender();
 		}
 		
+		private function resetTouch(e:*):void {
+			
+			if (this.parent && !(this.parent is TouchContainer)) {
+				if (this.parent.parent  && !(this.parent.parent is TouchContainer)) {
+					if (this.parent.parent.parent && this.parent.parent.parent is TouchContainer) {
+						this.parent.parent.parent.addEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+						this.parent.parent.parent.removeEventListener(GWGestureEvent.SCALE, onTouchScale);
+						this.parent.parent.parent.removeEventListener(GWTouchEvent.TOUCH_OUT, resetTouch);
+					}
+				} else if (this.parent.parent && this.parent.parent is TouchContainer) {
+					this.parent.parent.addEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+					this.parent.parent.removeEventListener(GWGestureEvent.SCALE, onTouchScale);
+					this.parent.parent.removeEventListener(GWTouchEvent.TOUCH_OUT, resetTouch);
+				}
+			} else if (this.parent && this.parent is TouchContainer) {
+				this.parent.addEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+				this.parent.removeEventListener(GWGestureEvent.SCALE, onTouchScale);
+				this.parent.removeEventListener(GWTouchEvent.TOUCH_OUT, resetTouch);
+			}
+			
+		}
+		
+		private function onTouchScale(e:*):void {
+			if (this.parent && !(this.parent is TouchContainer)) {
+				if (this.parent.parent  && !(this.parent.parent is TouchContainer)) {
+					if (this.parent.parent.parent && this.parent.parent.parent is TouchContainer) {
+						this.parent.parent.parent.removeEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+					}
+				} else if (this.parent.parent && this.parent.parent is TouchContainer) {
+					this.parent.parent.removeEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+				}
+			} else if (this.parent && this.parent is TouchContainer) {
+				this.parent.removeEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+			}
+			
+			//trace("On TouchScale");
+			
+			var zoomFactor:Number = 0;
+			var multiplier:Number = 50;
+			
+			zoomFactor += e.value.scale_dsy * multiplier;
+			zoomFactor += e.value.scale_dsx * multiplier;
+			
+			if (this.parent){
+				this.parent.dispatchEvent(new StateEvent(StateEvent.CHANGE, "TileGrid", "value", zoomFactor));
+				//trace("Dispatching from tileGrid");
+			}
+		}
+		
 		private function onRemovedFromStage(event:Event):void
 		{
 			if (hasEventListener(MouseEvent.MOUSE_DOWN)) {
 				removeEventListener(MouseEvent.MOUSE_DOWN, mousePressed, true);
 			}
+			
+			if (this.parent && !(this.parent is TouchContainer)) {
+					if (this.parent.parent  && !(this.parent.parent is TouchContainer)) {
+						if (this.parent.parent.parent && this.parent.parent.parent is TouchContainer) {
+							this.parent.parent.parent.removeEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+							if (this.parent.parent.parent.hasEventListener(GWGestureEvent.SCALE)){
+								this.parent.parent.parent.removeEventListener(GWGestureEvent.SCALE, onTouchScale);
+								this.parent.parent.parent.removeEventListener(GWTouchEvent.TOUCH_END, resetTouch);
+							}
+						}
+					} else if (this.parent.parent && this.parent.parent is TouchContainer) {
+						this.parent.parent.removeEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+						if (this.parent.parent.hasEventListener(GWGestureEvent.SCALE)){
+							this.parent.parent.removeEventListener(GWGestureEvent.SCALE, onTouchScale);
+							this.parent.parent.removeEventListener(GWTouchEvent.TOUCH_END, resetTouch);
+						}
+					}
+				} else if (this.parent && this.parent is TouchContainer) {
+					this.parent.removeEventListener(GWTouchEvent.TOUCH_BEGIN, mousePressed);
+					if (this.parent.parent.parent.hasEventListener(GWGestureEvent.SCALE)){
+						this.parent.removeEventListener(GWGestureEvent.SCALE, onTouchScale);
+						this.parent.removeEventListener(GWTouchEvent.TOUCH_END, resetTouch);
+					}
+				}
+				
 			removeEventListener(Event.RENDER, onRender);
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			// FIXME: should we still do this, in TilePainter?
@@ -755,10 +852,18 @@ package com.modestmaps.core
  			return keys;
 		}
 						
-		public function mousePressed(event:MouseEvent):void
+		//public function mousePressed(event:MouseEvent):void
+		public function mousePressed(event:*):void
 		{
+			//trace(event.type);
+			
+			this.parent.parent.parent.addEventListener(GWTouchEvent.TOUCH_END, resetTouch);
+			this.parent.parent.parent.addEventListener(GWGestureEvent.SCALE, onTouchScale);
+			
 			prepareForPanning(true);
+			
 			pmouse = new Point(event.stageX, event.stageY);
+			
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseDragged);
 			stage.addEventListener(MouseEvent.MOUSE_UP, mouseReleased);
 			stage.addEventListener(Event.MOUSE_LEAVE, mouseReleased);
@@ -781,13 +886,17 @@ package com.modestmaps.core
 
 		public function mouseDragged(event:MouseEvent):void
 		{
-			var mousePoint:Point = new Point(event.stageX, event.stageY);
-			tx += mousePoint.x - pmouse.x;
-			ty += mousePoint.y - pmouse.y;
-			pmouse = mousePoint;
-			dirty = true;
+			dragMap(new Point(event.stageX, event.stageY));
 			event.updateAfterEvent();
 		}	
+		
+		public function dragMap(point:Point):void {			
+			if (!pmouse) pmouse = point;
+			tx += point.x - pmouse.x;
+			ty += point.y - pmouse.y;
+			pmouse = point;
+			dirty = true;			
+		}
 
 		// today is all about lazy evaluation
 		// this gets set to null by 'dirty = true'
@@ -945,6 +1054,7 @@ package com.modestmaps.core
 		
 		public function prepareForZooming():void
 		{
+			//trace("Start zooming");
 			if (startZoom >= 0) {
 				doneZooming();
 			}
@@ -961,6 +1071,7 @@ package com.modestmaps.core
 			    		
 		public function doneZooming():void
 		{
+			//trace("Done zooming.");
 			onStopZooming();
 			startZoom = -1;
 			zooming = false;
