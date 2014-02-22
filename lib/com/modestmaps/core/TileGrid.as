@@ -138,7 +138,7 @@ package com.modestmaps.core
 		public var panning:Boolean;
 		
 		// previous mouse position when dragging 
-		protected var pmouse:Point;
+		public var pmouse:Point;
 		
 		// for zoom events
 		protected var startZoom:Number = -1;
@@ -409,7 +409,7 @@ package com.modestmaps.core
 		 * (Flash Player 9, Firefox, Macbook Pro)
 		 *  
 		 */
-		protected function onRender(event:Event=null):void
+		public function onRender(event:Event=null):void
 		{
 			var t:Number = getTimer();
 			
@@ -891,11 +891,10 @@ package com.modestmaps.core
 		}	
 		
 		public function dragMap(point:Point):void {			
-			if (!pmouse) pmouse = point;
 			tx += point.x - pmouse.x;
 			ty += point.y - pmouse.y;
 			pmouse = point;
-			dirty = true;			
+			dirty = true;	
 		}
 
 		// today is all about lazy evaluation

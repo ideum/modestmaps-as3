@@ -21,11 +21,7 @@ package com.modestmaps.core
 				
 		public function Tile(column:int, row:int, zoom:int)
 		{
-			//init(column, row, zoom);
-			this.zoom = zoom;
-			this.row = row;
-			this.column = column;			
-			hide();			
+			init(column, row, zoom);
 			
 			// otherwise you'll get seams between tiles :(
 			this.cacheAsBitmap = false;
@@ -34,13 +30,13 @@ package com.modestmaps.core
 		} 
 		
 		/** override this in a subclass and call grid.setTileClass if you want to draw on your tiles */
-	    //public function init(column:int, row:int, zoom:int):void
-	    //{
-			//this.zoom = zoom;
-			//this.row = row;
-			//this.column = column;			
-			//hide();
-	    //}        
+	    public function init(column:int, row:int, zoom:int):void
+	    {
+			this.zoom = zoom;
+			this.row = row;
+			this.column = column;			
+			hide();
+	    }        
 
 		/** once TileGrid is done with a tile, it will call destroy and possibly reuse it later */
 	    public function destroy():void
