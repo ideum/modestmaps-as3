@@ -1,0 +1,41 @@
+﻿<?xml version="1.0"?>
+<project name="ModestMapsSWC" default="modestmaps_swc" basedir="./">
+	
+	<property file="build.properties"/>	
+	<property name="VERSION" value="${gw_version}"/>		
+	<property name="SRC" value="${basedir}/lib/"/>	
+	<property name="EXT_SWCS" value="${basedir}/../gestureworks-flash-installer/GW-OE Flash/bin/files/lib/"/>	
+	<property name="INT_SWCS" value="${basedir}/libs/"/>	
+	<property name="FLEX_HOME" value="${flex.home}"/>
+	<property name="FRAMEWORKS_LIBS" value="${FLEX_HOME}/frameworks/libs"/>	
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/>			
+		
+	<!--Modest Maps SWC-->
+	<target name="modestmaps_swc">
+		<compc output="${basedir}/modestmaps.swc" fork="true" warnings="false" include-classes="com.modestmaps.core.painter.ITilePainter com.modestmaps.core.painter.ITilePainterOverride com.modestmaps.core.painter.TileCache com.modestmaps.core.painter.TilePainter com.modestmaps.core.painter.TilePool com.modestmaps.core.painter.TileQueue com.modestmaps.core.Coordinate com.modestmaps.core.MapExtent com.modestmaps.core.Tile com.modestmaps.core.TileGrid com.modestmaps.core.TweenTile com.modestmaps.events.MapEvent com.modestmaps.events.MarkerEvent com.modestmaps.geo.AbstractProjection com.modestmaps.geo.IProjection com.modestmaps.geo.Location com.modestmaps.geo.MercatorProjection com.modestmaps.geo.Transformation com.modestmaps.mapproviders.microsoft.MicrosoftAerialMapProvider com.modestmaps.mapproviders.microsoft.MicrosoftHybridMapProvider com.modestmaps.mapproviders.microsoft.MicrosoftProvider com.modestmaps.mapproviders.microsoft.MicrosoftRoadMapProvider com.modestmaps.mapproviders.yahoo.YahooAerialMapProvider com.modestmaps.mapproviders.yahoo.YahooHybridMapProvider com.modestmaps.mapproviders.yahoo.YahooRoadMapProvider com.modestmaps.mapproviders.AbstractMapProvider com.modestmaps.mapproviders.BlueMarbleMapProvider com.modestmaps.mapproviders.IMapProvider com.modestmaps.mapproviders.OpenStreetMapProvider com.modestmaps.overlays.MarkerClip com.modestmaps.Map com.modestmaps.TweenMap com.modestmaps.util.BinaryUtil gs.TweenLite">
+			<accessible>true</accessible>
+			<target-player>${flash_player}</target-player>
+			<debug>true</debug>
+			
+			<source-path path-element="${SRC}"/>
+			<include-sources dir="${SRC}" includes="**/*.as"/>
+						
+			<library-path dir="${INT_SWCS}">
+				<include name="map_1_21.swc"/>
+			</library-path>			
+			
+			<external-library-path dir="${FRAMEWORKS_LIBS}">
+				<include name="air/airglobal.swc"/>
+				<include name="framework.swc"/>
+				<include name="textLayout.swc"/>
+			</external-library-path>	
+			
+			<external-library-path dir="${EXT_SWCS}">
+				<include name="GestureWorksGML_${VERSION}.swc"/>
+				<include name="GestureWorksCML_${VERSION}.swc"/>
+				<include name="GestureWorksAway3D_${VERSION}.swc"/>
+			</external-library-path>						
+		</compc>		
+	</target>		
+
+</project>
